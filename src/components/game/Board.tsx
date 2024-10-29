@@ -1,27 +1,37 @@
+/* eslint-disable sonarjs/pseudo-random */
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-// this game scope is about 3x3 tic-tac-toe
+// This game scope is about 3x3 Tic-Tac-Toe
 export default function Board() {
-  // Define the type of squares state
   const [squares, setSquares] = useState<(string | null)[]>(
     Array(9).fill(null),
   );
-  const [isXNext, setIsXNext] = useState(true);
+  const [isXNext, setIsXNext] = useState<boolean>(true); // Default to "X"
+  const [draw, setDraw] = useState<boolean>(false); // State to track if the game is a draw
+  const [isBotMoving, setIsBotMoving] = useState<boolean>(false); // State to track if bot is making a move
 
-  const handleSquareClick = (index: number) => {
-    if (squares[index] || calculateWinner(squares)) return;
+  useEffect(() => {
+    setIsXNext(Math.random() < 0.5); // Randomly choose who goes first
+  }, []);
 
-    const newSquares = squares.slice();
-    newSquares[index] = isXNext ? "X" : "O";
-    setSquares(newSquares);
-    setIsXNext(!isXNext);
-  };
+  const handleSquareClick = useCallback(
+    (index: number) => {
+      if (squares[index] || calculateWinner(squares) || draw || isBotMoving)
+        return; // Disable if bot is moving
+
+      const newSquares = squares.slice();
+      newSquares[index] = "X"; // Human plays as "X"
+      setSquares(newSquares);
+      setIsXNext(false); // Switch to bot's turn
+      setIsBotMoving(true); // Set bot moving state to true
+    },
+    [squares, draw, isBotMoving],
+  );
 
   const calculateWinner = (squares: (string | null)[]) => {
-    // hard code win condition for 3x3
     const lines = [
       [0, 1, 2],
       [3, 4, 5],
@@ -44,14 +54,67 @@ export default function Board() {
     return null;
   };
 
+  const checkDraw = useCallback((squares: (string | null)[]) => {
+    return (
+      squares.every((square) => square !== null) && !calculateWinner(squares)
+    );
+  }, []);
+
   const winner = calculateWinner(squares);
   const nextPlayer = isXNext ? "X" : "O";
-  const status = winner ? `Winner: ${winner}` : `Next player: ${nextPlayer}`;
+  let status;
+
+  if (winner) {
+    status = `Winner: ${winner}`;
+  } else if (draw) {
+    status = `It's a draw!`;
+  } else {
+    status = `Next player: ${nextPlayer}`;
+  }
 
   const resetGame = () => {
     setSquares(Array(9).fill(null));
-    setIsXNext(true);
+    setIsXNext(true); // Start with "X" again
+    setDraw(false); // Reset draw state
+    setIsBotMoving(false); // Reset bot moving state
   };
+
+  // Effect to handle the bot's turn
+  useEffect(() => {
+    if (!isXNext && !winner && !draw) {
+      const botMove = () => {
+        const emptySquares = squares
+          .map((square, index) => (square === null ? index : null))
+          .filter((index) => index !== null);
+        const randomIndex = Math.floor(Math.random() * emptySquares.length);
+        const move = emptySquares[randomIndex];
+
+        if (move !== undefined) {
+          const newSquares = squares.slice();
+          newSquares[move] = "O"; // Bot plays as "O"
+          setSquares(newSquares);
+          setIsXNext(true); // Switch back to human's turn
+
+          // Check for draw after bot's move
+          if (checkDraw(newSquares)) {
+            setDraw(true);
+          }
+        }
+
+        setIsBotMoving(false); // Reset bot moving state after the move
+      };
+
+      const timer = setTimeout(botMove, 1000); // Delay for bot's turn
+      return () => clearTimeout(timer);
+    }
+  }, [isXNext, squares, winner, draw, checkDraw]);
+
+  // Check for draw after each human move
+  useEffect(() => {
+    if (checkDraw(squares)) {
+      setDraw(true);
+    }
+  }, [checkDraw, squares]);
 
   return (
     <div className="flex min-h-screen flex-col items-center p-8">
@@ -64,6 +127,7 @@ export default function Board() {
             key={i}
             className="h-16 w-16 border border-gray-500 text-2xl font-semibold"
             onClick={() => handleSquareClick(i)}
+            disabled={!!square || !!winner || draw || isBotMoving} // Disable button if already clicked, if there's a winner, if it's a draw, or if bot is moving
           >
             {square}
           </Button>
