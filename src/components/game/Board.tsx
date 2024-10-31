@@ -66,10 +66,13 @@ export default function Board() {
 
   const resetGame = () => {
     setSquares(Array(9).fill(null));
-    setIsXNext(true);
     setDraw(false);
-    setIsBotMoving(false);
     setGameState(null);
+
+    const isXStart = Math.random() < 0.5; // Randomly choose who goes first
+    setIsXNext(isXStart);
+    // control bot moving state depend on who goes first
+    setIsBotMoving(!isXStart);
   };
 
   const handleSquareClick = useCallback(
@@ -85,6 +88,10 @@ export default function Board() {
     },
     [squares, draw, isBotMoving],
   );
+
+  useEffect(() => {
+    resetGame();
+  }, []);
 
   useEffect(() => {
     const winner = calculateWinner(squares);
