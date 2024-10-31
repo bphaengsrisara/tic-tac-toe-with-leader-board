@@ -76,7 +76,10 @@ export default function Board() {
   };
 
   useEffect(() => {
-    setIsXNext(Math.random() < 0.5); // Randomly choose who goes first
+    const isXStart = Math.random() < 0.5; // Randomly choose who goes first
+    setIsXNext(isXStart);
+    // control bot moving state depend on who goes first
+    setIsBotMoving(!isXStart);
   }, []);
 
   // Effect to handle the bot's turn
