@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { signIn } from "next-auth/react";
+import { logIn } from "@/lib/auth";
 
 export default function Login() {
   return (
@@ -20,13 +20,13 @@ export default function Login() {
         </CardHeader>
         <CardContent>
           <Button
-            onClick={() => signIn()}
+            onClick={() => logIn()}
             className="mb-3 w-full bg-blue-500 font-semibold text-white hover:bg-blue-600"
           >
             Sign in
           </Button>
           <Button
-            onClick={() => signIn("google")}
+            onClick={() => logIn("google")}
             className="w-full bg-red-500 font-semibold text-white hover:bg-red-600"
           >
             Sign in with Google
