@@ -1,5 +1,5 @@
 import Board from "@/components/game/Board";
 
-export default function Home() {
+export default async function Home() {
   return <Board />;
 }

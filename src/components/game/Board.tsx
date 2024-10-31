@@ -13,10 +13,6 @@ export default function Board() {
   const [draw, setDraw] = useState<boolean>(false); // State to track if the game is a draw
   const [isBotMoving, setIsBotMoving] = useState<boolean>(false); // State to track if bot is making a move
 
-  useEffect(() => {
-    setIsXNext(Math.random() < 0.5); // Randomly choose who goes first
-  }, []);
-
   const handleSquareClick = useCallback(
     (index: number) => {
       if (squares[index] || calculateWinner(squares) || draw || isBotMoving)
@@ -78,6 +74,10 @@ export default function Board() {
     setDraw(false); // Reset draw state
     setIsBotMoving(false); // Reset bot moving state
   };
+
+  useEffect(() => {
+    setIsXNext(Math.random() < 0.5); // Randomly choose who goes first
+  }, []);
 
   // Effect to handle the bot's turn
   useEffect(() => {
