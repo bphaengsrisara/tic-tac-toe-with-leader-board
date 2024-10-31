@@ -3,29 +3,18 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
 
-// This game scope is about 3x3 Tic-Tac-Toe
 export default function Board() {
+  const { data: session } = useSession();
+  const { id: userId, name } = session?.user ?? {};
   const [squares, setSquares] = useState<(string | null)[]>(
     Array(9).fill(null),
   );
-  const [isXNext, setIsXNext] = useState<boolean>(true); // Default to "X"
-  const [draw, setDraw] = useState<boolean>(false); // State to track if the game is a draw
-  const [isBotMoving, setIsBotMoving] = useState<boolean>(false); // State to track if bot is making a move
-
-  const handleSquareClick = useCallback(
-    (index: number) => {
-      if (squares[index] || calculateWinner(squares) || draw || isBotMoving)
-        return; // Disable if bot is moving
-
-      const newSquares = squares.slice();
-      newSquares[index] = "X"; // Human plays as "X"
-      setSquares(newSquares);
-      setIsXNext(false); // Switch to bot's turn
-      setIsBotMoving(true); // Set bot moving state to true
-    },
-    [squares, draw, isBotMoving],
-  );
+  const [isXNext, setIsXNext] = useState<boolean>(true);
+  const [draw, setDraw] = useState<boolean>(false);
+  const [isBotMoving, setIsBotMoving] = useState<boolean>(false);
+  const [gameState, setGameState] = useState<string | null>(null);
 
   const calculateWinner = (squares: (string | null)[]) => {
     const lines = [
@@ -56,35 +45,65 @@ export default function Board() {
     );
   }, []);
 
-  const winner = calculateWinner(squares);
-  const nextPlayer = isXNext ? "X" : "O";
-  let status;
-
-  if (winner) {
-    status = `Winner: ${winner}`;
-  } else if (draw) {
-    status = `It's a draw!`;
-  } else {
-    status = `Next player: ${nextPlayer}`;
-  }
+  const updateScore = useCallback(
+    async (result: "win" | "loss") => {
+      try {
+        const response = await fetch("/api/score/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, result }),
+        });
+        const data = await response.json();
+        if (!data.success) {
+          console.error("Error updating score:", data.error);
+        }
+      } catch (error) {
+        console.error("Error updating score:", error);
+      }
+    },
+    [userId],
+  );
 
   const resetGame = () => {
     setSquares(Array(9).fill(null));
-    setIsXNext(true); // Start with "X" again
-    setDraw(false); // Reset draw state
-    setIsBotMoving(false); // Reset bot moving state
+    setIsXNext(true);
+    setDraw(false);
+    setIsBotMoving(false);
+    setGameState(null);
   };
 
-  useEffect(() => {
-    const isXStart = Math.random() < 0.5; // Randomly choose who goes first
-    setIsXNext(isXStart);
-    // control bot moving state depend on who goes first
-    setIsBotMoving(!isXStart);
-  }, []);
+  const handleSquareClick = useCallback(
+    (index: number) => {
+      if (squares[index] || calculateWinner(squares) || draw || isBotMoving)
+        return;
 
-  // Effect to handle the bot's turn
+      const newSquares = squares.slice();
+      newSquares[index] = "X";
+      setSquares(newSquares);
+      setIsXNext(false);
+      setIsBotMoving(true);
+    },
+    [squares, draw, isBotMoving],
+  );
+
   useEffect(() => {
-    if (!isXNext && !winner && !draw) {
+    const winner = calculateWinner(squares);
+    if (winner) {
+      if (winner === "X") {
+        updateScore("win");
+        setGameState(`Winner: ${name}`);
+      } else {
+        updateScore("loss");
+        setGameState(`Winner: Smart Bot`);
+      }
+    } else if (checkDraw(squares)) {
+      setGameState("It's a draw!");
+      setDraw(true);
+    }
+  }, [checkDraw, name, squares, updateScore]);
+
+  useEffect(() => {
+    if (!isXNext && !calculateWinner(squares) && !draw) {
       const botMove = () => {
         const emptySquares = squares
           .map((square, index) => (square === null ? index : null))
@@ -94,35 +113,26 @@ export default function Board() {
 
         if (move !== undefined) {
           const newSquares = squares.slice();
-          newSquares[move] = "O"; // Bot plays as "O"
+          newSquares[move] = "O";
           setSquares(newSquares);
-          setIsXNext(true); // Switch back to human's turn
+          setIsXNext(true);
 
-          // Check for draw after bot's move
-          if (checkDraw(newSquares)) {
-            setDraw(true);
-          }
+          if (checkDraw(newSquares)) setDraw(true);
         }
-
-        setIsBotMoving(false); // Reset bot moving state after the move
+        setIsBotMoving(false);
       };
 
-      const timer = setTimeout(botMove, 1000); // Delay for bot's turn
+      const timer = setTimeout(botMove, 500);
       return () => clearTimeout(timer);
     }
-  }, [isXNext, squares, winner, draw, checkDraw]);
-
-  // Check for draw after each human move
-  useEffect(() => {
-    if (checkDraw(squares)) {
-      setDraw(true);
-    }
-  }, [checkDraw, squares]);
+  }, [isXNext, squares, draw, checkDraw]);
 
   return (
     <div className="flex min-h-screen flex-col items-center p-8">
       <h1 className="mb-4 text-2xl font-bold">Tic-Tac-Toe</h1>
-      <p className="mb-4">{status}</p>
+      <p className="mb-4">
+        {gameState ?? `Next player: ${isXNext ? "X" : "O"}`}
+      </p>
       <div className="grid grid-cols-3 gap-2">
         {squares.map((square, i) => (
           <Button
@@ -130,7 +140,9 @@ export default function Board() {
             key={i}
             className="h-16 w-16 border border-gray-500 text-2xl font-semibold"
             onClick={() => handleSquareClick(i)}
-            disabled={!!square || !!winner || draw || isBotMoving} // Disable button if already clicked, if there's a winner, if it's a draw, or if bot is moving
+            disabled={
+              !!square || !!calculateWinner(squares) || draw || isBotMoving
+            }
           >
             {square}
           </Button>

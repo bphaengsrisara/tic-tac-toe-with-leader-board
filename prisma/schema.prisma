@@ -17,6 +17,7 @@ model User {
   sessions      Session[]
   // Optional for WebAuthn support
   Authenticator Authenticator[]
+  scores        Score[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -75,4 +76,17 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+model Score {
+  id        String @id @default(cuid())
+  userId    String
+  wins      Int    @default(0)
+  losses    Int    @default(0)
+  points    Int    @default(0)
+  winStreak Int    @default(0) // Tracks current consecutive wins
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
