@@ -4,8 +4,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
-export default function Board() {
+export default function Game() {
   const { data: session } = useSession();
   const { id: userId, name } = session?.user ?? {};
   const [squares, setSquares] = useState<(string | null)[]>(
@@ -158,6 +159,11 @@ export default function Board() {
       <Button onClick={resetGame} className="mt-6 bg-blue-500 text-white">
         Restart Game
       </Button>
+      <Link href="/leaderboard" passHref>
+        <Button className="mt-4 bg-green-500 text-white">
+          Go to Leaderboard
+        </Button>
+      </Link>
     </div>
   );
 }

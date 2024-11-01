@@ -1,5 +1,5 @@
-import Board from "@/components/game/Board";
+import Game from "@/components/Game";
 
-export default async function Home() {
-  return <Board />;
+export default async function Page() {
+  return <Game />;
 }
