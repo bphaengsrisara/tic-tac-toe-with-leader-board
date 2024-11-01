@@ -16,6 +16,8 @@ export default function Game() {
   const [draw, setDraw] = useState<boolean>(false);
   const [isBotMoving, setIsBotMoving] = useState<boolean>(false);
   const [gameState, setGameState] = useState<string | null>(null);
+  const [points, setPoints] = useState<number>(0);
+  const [rank, setRank] = useState<string | null>(null);
 
   const calculateWinner = (squares: (string | null)[]) => {
     const lines = [
@@ -46,6 +48,22 @@ export default function Game() {
     );
   }, []);
 
+  // Fetch current points and rank
+  const fetchScoreData = useCallback(async () => {
+    try {
+      const response = await fetch("/api/score/current", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await response.json();
+      setPoints(data.points);
+      setRank(data.rank);
+    } catch (error) {
+      console.error("Error fetching score data:", error);
+    }
+  }, [userId]);
+
   const updateScore = useCallback(
     async (result: "win" | "loss") => {
       try {
@@ -55,14 +73,15 @@ export default function Game() {
           body: JSON.stringify({ userId, result }),
         });
         const data = await response.json();
-        if (!data.success) {
-          console.error("Error updating score:", data.error);
+        if (data.success) {
+          // Re-fetch score data to update points and rank
+          await fetchScoreData();
         }
       } catch (error) {
         console.error("Error updating score:", error);
       }
     },
-    [userId],
+    [userId, fetchScoreData],
   );
 
   const resetGame = () => {
@@ -135,12 +154,21 @@ export default function Game() {
     }
   }, [isXNext, squares, draw, checkDraw]);
 
+  // Initial fetch for score data
+  useEffect(() => {
+    if (userId) {
+      fetchScoreData();
+    }
+  }, [userId, fetchScoreData]);
+
   return (
     <div className="flex min-h-screen flex-col items-center p-8">
       <h1 className="mb-4 text-2xl font-bold">Tic-Tac-Toe</h1>
       <p className="mb-4">
         {gameState ?? `Next player: ${isXNext ? "X" : "O"}`}
       </p>
+      <p className="mb-4">Current Points: {points}</p>
+      <p className="mb-4">Ranking: {rank}</p>
       <div className="grid grid-cols-3 gap-2">
         {squares.map((square, i) => (
           <Button
