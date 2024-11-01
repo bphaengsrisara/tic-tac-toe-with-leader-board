@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint --fix",
     "migrate": "prisma migrate dev",
-    "generate": "prisma generate"
+    "generate": "prisma generate",
+    "studio": "prisma studio --browser=none"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
