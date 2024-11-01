@@ -1,165 +1,79 @@
 /* eslint-disable sonarjs/pseudo-random */
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import useBoundStore from "@/store/useBoundStore";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getCurrentScore, updateGameScore } from "@/lib/api";
 
 export default function Game() {
   const { data: session } = useSession();
   const { id: userId, name } = session?.user ?? {};
-  const [squares, setSquares] = useState<(string | null)[]>(
-    Array(9).fill(null),
-  );
-  const [isXNext, setIsXNext] = useState<boolean>(true);
-  const [draw, setDraw] = useState<boolean>(false);
-  const [isBotMoving, setIsBotMoving] = useState<boolean>(false);
-  const [gameState, setGameState] = useState<string | null>(null);
-  const [points, setPoints] = useState<number>(0);
-  const [rank, setRank] = useState<string | null>(null);
+  const {
+    squares,
+    isXNext,
+    draw,
+    gameState,
+    isBotMoving,
+    resetGame,
+    handleSquareClick,
+    botMove,
+    setGameState,
+    setDraw,
+  } = useBoundStore((state) => state);
 
-  const calculateWinner = (squares: (string | null)[]) => {
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-    for (const [a, b, c] of lines) {
-      if (
-        squares[a] &&
-        squares[a] === squares[b] &&
-        squares[a] === squares[c]
-      ) {
-        return squares[a];
-      }
-    }
-    return null;
-  };
+  const queryClient = useQueryClient();
 
-  const checkDraw = useCallback((squares: (string | null)[]) => {
-    return (
-      squares.every((square) => square !== null) && !calculateWinner(squares)
-    );
-  }, []);
+  const { data: scoreData } = useQuery({
+    queryKey: ["scoreData", userId],
+    queryFn: () => getCurrentScore(userId!),
+    enabled: !!userId, // Only run the query if userId is available
+  });
 
-  // Fetch current points and rank
-  const fetchScoreData = useCallback(async () => {
-    try {
-      const response = await fetch("/api/score/current", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
+  // Mutation to update the score
+  const { mutate: updateScore } = useMutation({
+    mutationFn: updateGameScore,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["scoreData"],
+        exact: false,
+        refetchType: "active",
       });
-      const data = await response.json();
-      setPoints(data.points);
-      setRank(data.rank);
-    } catch (error) {
-      console.error("Error fetching score data:", error);
+    },
+    onError: (error) => {
+      console.error("Error updating score:", error);
+    },
+  });
+
+  useEffect(() => {
+    resetGame(); // Reset the game on component mount
+  }, [resetGame]);
+
+  useEffect(() => {
+    if (isBotMoving) {
+      const timer = setTimeout(() => botMove(), 500); // Delay bot move
+      return () => clearTimeout(timer);
     }
-  }, [userId]);
+  }, [isBotMoving, botMove]);
 
-  const updateScore = useCallback(
-    async (result: "win" | "loss") => {
-      try {
-        const response = await fetch("/api/score/update", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, result }),
-        });
-        const data = await response.json();
-        if (data.success) {
-          // Re-fetch score data to update points and rank
-          await fetchScoreData();
-        }
-      } catch (error) {
-        console.error("Error updating score:", error);
-      }
-    },
-    [userId, fetchScoreData],
-  );
-
-  const resetGame = () => {
-    setSquares(Array(9).fill(null));
-    setDraw(false);
-    setGameState(null);
-
-    const isXStart = Math.random() < 0.5; // Randomly choose who goes first
-    setIsXNext(isXStart);
-    // control bot moving state depend on who goes first
-    setIsBotMoving(!isXStart);
-  };
-
-  const handleSquareClick = useCallback(
-    (index: number) => {
-      if (squares[index] || calculateWinner(squares) || draw || isBotMoving)
-        return;
-
-      const newSquares = squares.slice();
-      newSquares[index] = "X";
-      setSquares(newSquares);
-      setIsXNext(false);
-      setIsBotMoving(true);
-    },
-    [squares, draw, isBotMoving],
-  );
-
+  // Check for a winner or draw from gameState
   useEffect(() => {
-    resetGame();
-  }, []);
-
-  useEffect(() => {
-    const winner = calculateWinner(squares);
-    if (winner) {
-      if (winner === "X") {
-        updateScore("win");
+    if (gameState && userId) {
+      if (gameState === "X") {
+        updateScore({ userId, result: "win" });
         setGameState(`Winner: ${name}`);
-      } else {
-        updateScore("loss");
+      } else if (gameState === "O") {
+        updateScore({ userId, result: "loss" });
         setGameState(`Winner: Smart Bot`);
       }
-    } else if (checkDraw(squares)) {
+    } else if (gameState === "draw") {
       setGameState("It's a draw!");
       setDraw(true);
     }
-  }, [checkDraw, name, squares, updateScore]);
-
-  useEffect(() => {
-    if (!isXNext && !calculateWinner(squares) && !draw) {
-      const botMove = () => {
-        const emptySquares = squares
-          .map((square, index) => (square === null ? index : null))
-          .filter((index) => index !== null);
-        const randomIndex = Math.floor(Math.random() * emptySquares.length);
-        const move = emptySquares[randomIndex];
-
-        if (move !== undefined) {
-          const newSquares = squares.slice();
-          newSquares[move] = "O";
-          setSquares(newSquares);
-          setIsXNext(true);
-
-          if (checkDraw(newSquares)) setDraw(true);
-        }
-        setIsBotMoving(false);
-      };
-
-      const timer = setTimeout(botMove, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isXNext, squares, draw, checkDraw]);
-
-  // Initial fetch for score data
-  useEffect(() => {
-    if (userId) {
-      fetchScoreData();
-    }
-  }, [userId, fetchScoreData]);
+  }, [gameState, name, setDraw, setGameState, squares, updateScore, userId]);
 
   return (
     <div className="flex min-h-screen flex-col items-center p-8">
@@ -167,8 +81,8 @@ export default function Game() {
       <p className="mb-4">
         {gameState ?? `Next player: ${isXNext ? "X" : "O"}`}
       </p>
-      <p className="mb-4">Current Points: {points}</p>
-      <p className="mb-4">Ranking: {rank}</p>
+      <p className="mb-4">Current Points: {scoreData?.points}</p>
+      <p className="mb-4">Ranking: {scoreData?.rank}</p>
       <div className="grid grid-cols-3 gap-2">
         {squares.map((square, i) => (
           <Button
@@ -177,7 +91,10 @@ export default function Game() {
             className="h-16 w-16 border border-gray-500 text-2xl font-semibold"
             onClick={() => handleSquareClick(i)}
             disabled={
-              !!square || !!calculateWinner(squares) || draw || isBotMoving
+              !!square ||
+              ["win", "lose"].includes(`${gameState}`) ||
+              draw ||
+              isBotMoving
             }
           >
             {square}
