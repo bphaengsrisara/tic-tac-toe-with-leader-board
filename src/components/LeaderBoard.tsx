@@ -1,19 +1,19 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getLeaderboard } from "@/api"; // Import your API function
-import { Button } from "@/components/ui/button"; // Adjust import if necessary
+import { getLeaderboard } from "@/api";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function Leaderboard() {
-  const { data, error, isLoading } = useQuery({
+  const { data, error, isFetching } = useQuery({
     queryKey: ["leaderboard"],
     queryFn: getLeaderboard,
   });
 
   let renderer;
 
-  if (isLoading) {
+  if (isFetching) {
     renderer = <p>Loading leaderboard...</p>;
   } else if (error) {
     renderer = (
@@ -26,6 +26,7 @@ export default function Leaderboard() {
       <table className="min-w-full border-collapse border border-gray-300 text-center">
         <thead>
           <tr className="bg-gray-200">
+            <th className="border border-gray-300 p-2">Rank</th>
             <th className="border border-gray-300 p-2">Name</th>
             <th className="border border-gray-300 p-2">Points</th>
           </tr>
@@ -33,6 +34,7 @@ export default function Leaderboard() {
         <tbody>
           {data?.leaderboard.map((entry) => (
             <tr key={entry.user.id}>
+              <td className="border border-gray-300 p-2">{entry.rank}</td>
               <td className="border border-gray-300 p-2">{entry.user.name}</td>
               <td className="border border-gray-300 p-2">{entry.points}</td>
             </tr>

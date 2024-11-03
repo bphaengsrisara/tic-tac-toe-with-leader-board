@@ -9,6 +9,7 @@ export interface LeaderboardEntry {
     name: string | null;
   };
   points: number;
+  rank: number;
 }
 
 export interface LeaderboardResponse {

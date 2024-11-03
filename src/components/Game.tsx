@@ -1,13 +1,14 @@
 /* eslint-disable sonarjs/pseudo-random */
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import useBoundStore from "@/store/useBoundStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCurrentScore, updateGameScore } from "@/api";
+import { cn } from "@/lib/utils";
 
 export default function Game() {
   const { data: session } = useSession();
@@ -29,7 +30,7 @@ export default function Game() {
 
   const {
     data: scoreData,
-    isLoading: scoreLoading,
+    isFetching: isScoreFetching,
     error: scoreError,
   } = useQuery({
     queryKey: ["scoreData", userId],
@@ -40,7 +41,7 @@ export default function Game() {
   // Mutation to update the score
   const {
     mutate: updateScore,
-    isPending: scoreUpdating,
+    isPending: isScoreUpdating,
     error: updateError,
   } = useMutation({
     mutationFn: updateGameScore,
@@ -55,6 +56,11 @@ export default function Game() {
       });
     },
   });
+
+  const isLoading = useMemo(
+    () => isScoreFetching || isScoreUpdating,
+    [isScoreFetching, isScoreUpdating],
+  );
 
   useEffect(() => {
     resetGame(); // Reset the game on component mount
@@ -89,7 +95,7 @@ export default function Game() {
       <p className="mb-4">
         {gameState ?? `Next player: ${isXNext ? "X" : "O"}`}
       </p>
-      {scoreLoading && (
+      {isScoreFetching && (
         <p className="text-lg text-blue-500">Loading current score...</p>
       )}
       {scoreError && (
@@ -97,7 +103,7 @@ export default function Game() {
           Error loading score: {scoreError.message}
         </p>
       )}
-      {scoreData && (
+      {!isScoreFetching && scoreData && (
         <div className="flex flex-col items-center space-y-2">
           <p className="text-lg font-medium">
             Current Points:{" "}
@@ -116,17 +122,21 @@ export default function Game() {
             key={i}
             className="h-16 w-16 border border-gray-500 text-2xl font-semibold"
             onClick={() => handleSquareClick(i)}
-            disabled={!!square || !!winner || draw || !isXNext}
+            disabled={!!square || !!winner || draw || !isXNext || isLoading}
           >
             {square}
           </Button>
         ))}
       </div>
-      <Button onClick={resetGame} className="mt-6 bg-blue-500 text-white">
+      <Button
+        onClick={resetGame}
+        disabled={isLoading}
+        className="mt-6 bg-blue-500 text-white disabled:bg-slate-600"
+      >
         Restart Game
       </Button>
 
-      {scoreUpdating && (
+      {isScoreUpdating && (
         <p className="mt-4 text-sm text-blue-500">Updating score...</p>
       )}
       {updateError && (
@@ -135,8 +145,15 @@ export default function Game() {
         </p>
       )}
 
-      <Link href="/leaderboard" passHref>
-        <Button className="mt-4 bg-green-500 text-white">
+      <Link
+        href={isLoading ? {} : "/leaderboard"}
+        passHref
+        className={cn(isLoading && "cursor-default")}
+      >
+        <Button
+          disabled={isLoading}
+          className="mt-4 bg-green-500 text-white disabled:bg-slate-600"
+        >
           Go to Leaderboard
         </Button>
       </Link>

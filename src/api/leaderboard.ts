@@ -4,7 +4,7 @@ import { fakeDelay } from "@/lib/utils";
 export async function getLeaderboard(): Promise<LeaderboardResponse> {
   const response = await fetch("/api/leaderboard");
 
-  fakeDelay();
+  await fakeDelay();
 
   if (!response.ok) {
     throw new Error("Failed to fetch leaderboard data");

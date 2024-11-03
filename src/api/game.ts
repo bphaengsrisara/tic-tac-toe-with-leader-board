@@ -6,7 +6,7 @@ export const getCurrentScore = async (userId: string): Promise<ScoreData> => {
     headers: { "Content-Type": "application/json" },
   });
 
-  fakeDelay();
+  await fakeDelay();
 
   if (!response.ok) {
     throw new Error("Failed to fetch score data");
@@ -31,7 +31,7 @@ export const updateGameScore = async ({
     }), // Pass the new score data
   });
 
-  fakeDelay();
+  await fakeDelay();
 
   if (!response.ok) {
     throw new Error("Failed to update score");
