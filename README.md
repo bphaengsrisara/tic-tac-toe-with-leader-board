@@ -57,7 +57,7 @@ DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_N
    Clone the repository to your local machine and navigate into the project directory:
 
    ```bash
-   git clone https://github.com/your-username/tic-tac-toe-with-leader-board.git
+   git clone https://github.com/bphaengsrisara/tic-tac-toe-with-leader-board.git
    cd tic-tac-toe-with-leader-board
    ```
 
@@ -90,7 +90,7 @@ DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_N
    Clone the repository to your local machine and navigate into the project directory:
 
    ```bash
-   git clone https://github.com/your-username/tic-tac-toe-with-leader-board.git
+   git clone https://github.com/bphaengsrisara/tic-tac-toe-with-leader-board.git
    cd tic-tac-toe-with-leader-board
    ```
 
