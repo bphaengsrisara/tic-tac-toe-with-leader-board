@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tic-Tac-Toe with Leaderboard
 
-## Getting Started
+This project is a Next.js application that features a Tic-Tac-Toe game with a leaderboard tracking wins and streaks for authenticated users. Built with Prisma for database management and NextAuth for authentication, it offers a modern, server-rendered experience.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Authentication**: Google sign-in via NextAuth
+- **Tic-Tac-Toe Game**: Human vs. bot mode with score tracking
+- **Leaderboard**: Persistent score tracking with PostgreSQL
+- **State Management**: Zustand for UI state
+- **Data Fetching**: TanStack Query for efficient server requests
+
+## Tech Stack
+
+- **Frontend**: [Next.js](https://nextjs.org/), [React](https://react.dev/), [Zustand](https://docs.pmnd.rs/zustand/getting-started/introduction), [TanStack Query](https://tanstack.com/query/latest/docs/framework/react/overview)
+- **Backend**: [Next.js API Routes](https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#api-routes), [Prisma](https://www.prisma.io/), [PostgreSQL](https://www.postgresql.org/)
+- **Styling**: [TailwindCSS](https://tailwindcss.com/), [shadcn](https://ui.shadcn.com/docs)
+- **Authentication**: [NextAuth](https://authjs.dev/getting-started) with [Google OAuth](https://authjs.dev/getting-started/providers/google)
+- **Development**: [Yarn](https://yarnpkg.com/), [ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [Docker](https://www.docker.com/) (optional)
+
+## Installation
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (version 20+ recommended)
+- [Yarn](https://yarnpkg.com/) for package management
+- [Docker](https://www.docker.com/) for containerization (optional)
+
+### Environment Variables
+
+Create a `.env` file with the following environment variables:
+
+```plaintext
+# NextAuth configuration
+AUTH_TRUST_HOST=your_auth_trust_host
+NEXTAUTH_SECRET=your_nextauth_secret
+NEXTAUTH_URL=your_nextauth_url
+
+# Google OAuth configuration
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# PostgreSQL configuration
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_DB=your_db_name
+DB_PORT=your_db_port
+DB_HOST=your_db_host
+
+# ! don't change this line
+DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Setup without docker
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone the Repository**  
+   Clone the repository to your local machine and navigate into the project directory:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   git clone https://github.com/your-username/tic-tac-toe-with-leader-board.git
+   cd tic-tac-toe-with-leader-board
+   ```
 
-## Learn More
+2. **Install Dependencies**  
+   Use Yarn to install the required packages:
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   yarn
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Run Database Migrations**  
+   Set up the database schema by running the following command:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   yarn db:setup
+   ```
 
-## Deploy on Vercel
+4. **Start the Development Server**  
+   Launch the application in development mode:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   yarn dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   You can now access the application at http://localhost:3000.
+
+### Run with docker
+
+1. **Clone the Repository**  
+   Clone the repository to your local machine and navigate into the project directory:
+
+   ```bash
+   git clone https://github.com/your-username/tic-tac-toe-with-leader-board.git
+   cd tic-tac-toe-with-leader-board
+   ```
+
+2. **Using Docker**  
+   If you prefer to run the application using Docker, you can start it with:
+
+   ```bash
+   docker-compose up -d
+   ```
+
+   You can now access the application at http://localhost:3000.
+
+## Contact
+
+For any inquiries, please contact Bovonrajt Phaengsrisara at bovonrajt.p@gmail.com.
