@@ -1,19 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getLeaderboard } from "@/lib/api"; // Import your API function
+import { getLeaderboard } from "@/api"; // Import your API function
 import { Button } from "@/components/ui/button"; // Adjust import if necessary
 import Link from "next/link";
 
-type LeaderboardEntry = {
-  user: { id: string; name: string };
-  points: number;
-};
-
 export default function Leaderboard() {
-  const { data, error, isLoading } = useQuery<{
-    leaderboard: LeaderboardEntry[];
-  }>({
+  const { data, error, isLoading } = useQuery({
     queryKey: ["leaderboard"],
     queryFn: getLeaderboard,
   });

@@ -3,7 +3,7 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getLeaderboard } from "@/lib/api"; // Import your API function
+import { getLeaderboard } from "@/api"; // Import your API function
 import Leaderboard from "@/components/LeaderBoard";
 
 export default async function LeaderboardPage() {
