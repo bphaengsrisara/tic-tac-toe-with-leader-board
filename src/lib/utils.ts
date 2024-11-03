@@ -10,3 +10,7 @@ export function simpleRandom() {
   // eslint-disable-next-line sonarjs/pseudo-random
   return Math.random();
 }
+
+export async function fakeDelay() {
+  await new Promise((r) => setTimeout(r, 500));
+}

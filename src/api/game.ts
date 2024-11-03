@@ -1,12 +1,12 @@
 import { ScoreData } from "@/interfaces/api";
+import { fakeDelay } from "@/lib/utils";
 
 export const getCurrentScore = async (userId: string): Promise<ScoreData> => {
   const response = await fetch(`/api/score/current/${userId}`, {
     headers: { "Content-Type": "application/json" },
   });
 
-  // add fake delay
-  await new Promise((r) => setTimeout(r, 500));
+  fakeDelay();
 
   if (!response.ok) {
     throw new Error("Failed to fetch score data");
@@ -31,8 +31,7 @@ export const updateGameScore = async ({
     }), // Pass the new score data
   });
 
-  // add fake delay
-  await new Promise((r) => setTimeout(r, 500));
+  fakeDelay();
 
   if (!response.ok) {
     throw new Error("Failed to update score");
