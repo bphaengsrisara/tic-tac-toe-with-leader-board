@@ -98,7 +98,7 @@ DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_N
    If you prefer to run the application using Docker, you can start it with:
 
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
    You can now access the application at http://localhost:3000.
