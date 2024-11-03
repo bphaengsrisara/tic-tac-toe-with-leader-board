@@ -43,7 +43,7 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
 # PostgreSQL configuration
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
-DB_DB=your_db_name
+DB_NAME=your_db_name
 DB_PORT=your_db_port
 DB_HOST=your_db_host
 
