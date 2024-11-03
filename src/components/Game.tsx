@@ -67,11 +67,11 @@ export default function Game() {
   }, [resetGame]);
 
   useEffect(() => {
-    if (!isXNext) {
+    if (!isXNext && !winner) {
       const timer = setTimeout(() => botMove(), 500); // Delay bot move
       return () => clearTimeout(timer);
     }
-  }, [botMove, isXNext]);
+  }, [botMove, isXNext, winner]);
 
   // Check for a winner or draw from gameState
   useEffect(() => {
