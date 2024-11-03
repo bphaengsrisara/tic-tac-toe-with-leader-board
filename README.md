@@ -104,6 +104,13 @@ DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_N
 3. **Wait for 2 - 3 minutes**  
    You can now access the application at http://localhost:3000.
 
+## How to switch user
+1. Click logout button on the top right
+2. Go to [google.com](https://www.google.com/)
+3. Logout from google account
+4. Back to http://localhost:3000
+5. Then login again with different account
+
 ## Contact
 
 For any inquiries, please contact Bovonrajt Phaengsrisara at bovonrajt.p@gmail.com.
