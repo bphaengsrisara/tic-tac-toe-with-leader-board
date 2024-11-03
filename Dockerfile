@@ -14,7 +14,7 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 # Build the Next.js application
-RUN yarn build
+RUN yarn db:generate && yarn build
 
 # Expose the Next.js application port
 EXPOSE 3000

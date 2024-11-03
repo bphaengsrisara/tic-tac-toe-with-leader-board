@@ -11,8 +11,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio --browser=none",
-    "db:setup": "run-s db:deploy db:generate",
-    "docker:start": "run-s db:setup start"
+    "docker:start": "run-s db:deploy start"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
