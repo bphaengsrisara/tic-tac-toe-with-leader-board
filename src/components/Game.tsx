@@ -81,14 +81,16 @@ export default function Game() {
     }
   }, [gameState, name, setDraw, setGameState, squares, updateScore, userId]);
 
+  if (!scoreData || "error" in scoreData) return;
+
   return (
     <div className="flex min-h-screen flex-col items-center p-8">
       <h1 className="mb-4 text-2xl font-bold">Tic-Tac-Toe</h1>
       <p className="mb-4">
         {gameState ?? `Next player: ${isXNext ? "X" : "O"}`}
       </p>
-      <p className="mb-4">Current Points: {scoreData?.points}</p>
-      <p className="mb-4">Ranking: {scoreData?.rank}</p>
+      <p className="mb-4">Current Points: {scoreData.points}</p>
+      <p className="mb-4">Ranking: {scoreData.rank}</p>
       <div className="grid grid-cols-3 gap-2">
         {squares.map((square, i) => (
           <Button

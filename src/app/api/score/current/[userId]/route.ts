@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { ScoreData, ErrorResponse } from "@/interfaces/api";
 
-export async function POST(request: Request) {
-  const { userId } = await request.json();
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ userId: string }> },
+): Promise<NextResponse<ScoreData | ErrorResponse>> {
+  const { userId } = await params;
+
+  if (!userId) {
+    return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+  }
 
   try {
     // Get the current player's points

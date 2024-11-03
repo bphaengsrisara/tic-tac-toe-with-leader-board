@@ -1,16 +1,24 @@
-export const getCurrentScore = async (userId: string) => {
-  const response = await fetch("/api/score/current", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId }),
-  });
+import { ErrorResponse, ScoreData } from "@/interfaces/api";
 
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
+export const getCurrentScore = async (
+  userId: string,
+): Promise<ScoreData | ErrorResponse> => {
+  try {
+    const response = await fetch(`/api/score/current/${userId}`, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data: ScoreData = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching current score:", error);
+    // Return an ErrorResponse in case of failure
+    return { error: "Failed to fetch score data" };
   }
-
-  const data = await response.json();
-  return data; // This will return { points: number, rank: string }
 };
 
 export const updateGameScore = async ({
