@@ -10,7 +10,6 @@ export async function GET() {
         user: { select: { id: true, name: true } }, // Fetch just user's name
         points: true,
       },
-      take: 10, // Limit to top 10 players (no need pagination logic)
     });
 
     // Assign ranks to the leaderboard entries, accounting for ties
