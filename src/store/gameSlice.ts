@@ -33,6 +33,7 @@ export const createGameSlice: StateCreator<GameSlice> = (set) => ({
   draw: false,
   isBotMoving: false,
   gameState: null,
+  winner: null,
   points: 0,
   rank: null,
   resetGame: () => {
@@ -42,6 +43,7 @@ export const createGameSlice: StateCreator<GameSlice> = (set) => ({
       isXNext: isXStart,
       draw: false,
       gameState: null,
+      winner: null,
       isBotMoving: !isXStart, // Control bot moving state based on who goes first
     }));
   },
@@ -66,6 +68,7 @@ export const createGameSlice: StateCreator<GameSlice> = (set) => ({
         isXNext: false, // Switch to the bot's turn
         isBotMoving: true, // Now it's the bot's turn
         gameState: winner ?? (isDraw ? "draw" : null), // Set game state to winner or draw
+        winner,
         draw: isDraw,
       };
     }),
@@ -95,6 +98,7 @@ export const createGameSlice: StateCreator<GameSlice> = (set) => ({
           isXNext: true,
           gameState: winner ?? (isDraw ? "draw" : null),
           draw: isDraw,
+          winner,
           isBotMoving: false,
         };
       }

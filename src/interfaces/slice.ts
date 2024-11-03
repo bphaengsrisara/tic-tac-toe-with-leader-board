@@ -3,7 +3,8 @@ export interface GameSlice {
   isXNext: boolean;
   draw: boolean;
   isBotMoving: boolean;
-  gameState: string | null; // Could be "X", "O", or "draw"
+  gameState: string | null;
+  winner: string | null;
   resetGame: () => void;
   handleSquareClick: (index: number) => void;
   botMove: () => void;

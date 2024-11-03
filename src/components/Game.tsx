@@ -17,6 +17,7 @@ export default function Game() {
     isXNext,
     draw,
     gameState,
+    winner,
     isBotMoving,
     resetGame,
     handleSquareClick,
@@ -39,6 +40,11 @@ export default function Game() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["scoreData"],
+        exact: false,
+        refetchType: "active",
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["leaderboard"],
         exact: false,
         refetchType: "active",
       });
@@ -90,12 +96,7 @@ export default function Game() {
             key={i}
             className="h-16 w-16 border border-gray-500 text-2xl font-semibold"
             onClick={() => handleSquareClick(i)}
-            disabled={
-              !!square ||
-              ["win", "lose"].includes(`${gameState}`) ||
-              draw ||
-              isBotMoving
-            }
+            disabled={!!square || !!winner || draw || isBotMoving}
           >
             {square}
           </Button>
