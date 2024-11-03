@@ -101,6 +101,7 @@ DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_N
    docker compose up -d
    ```
 
+3. **Wait for 2 - 3 minutes**  
    You can now access the application at http://localhost:3000.
 
 ## Contact
