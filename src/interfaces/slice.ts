@@ -2,7 +2,6 @@ export interface GameSlice {
   squares: (string | null)[];
   isXNext: boolean;
   draw: boolean;
-  isBotMoving: boolean;
   gameState: string | null;
   winner: string | null;
   resetGame: () => void;

@@ -18,7 +18,6 @@ export default function Game() {
     draw,
     gameState,
     winner,
-    isBotMoving,
     resetGame,
     handleSquareClick,
     botMove,
@@ -62,11 +61,11 @@ export default function Game() {
   }, [resetGame]);
 
   useEffect(() => {
-    if (isBotMoving) {
+    if (!isXNext) {
       const timer = setTimeout(() => botMove(), 500); // Delay bot move
       return () => clearTimeout(timer);
     }
-  }, [isBotMoving, botMove]);
+  }, [botMove, isXNext]);
 
   // Check for a winner or draw from gameState
   useEffect(() => {
@@ -117,7 +116,7 @@ export default function Game() {
             key={i}
             className="h-16 w-16 border border-gray-500 text-2xl font-semibold"
             onClick={() => handleSquareClick(i)}
-            disabled={!!square || !!winner || draw || isBotMoving}
+            disabled={!!square || !!winner || draw || !isXNext}
           >
             {square}
           </Button>

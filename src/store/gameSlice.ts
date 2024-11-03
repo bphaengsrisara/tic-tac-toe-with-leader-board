@@ -31,7 +31,6 @@ export const createGameSlice: StateCreator<GameSlice> = (set) => ({
   squares: Array(9).fill(null),
   isXNext: true,
   draw: false,
-  isBotMoving: false,
   gameState: null,
   winner: null,
   points: 0,
@@ -44,17 +43,11 @@ export const createGameSlice: StateCreator<GameSlice> = (set) => ({
       draw: false,
       gameState: null,
       winner: null,
-      isBotMoving: !isXStart, // Control bot moving state based on who goes first
     }));
   },
   handleSquareClick: (index) =>
     set((state) => {
-      if (
-        state.squares[index] ||
-        state.gameState ||
-        state.draw ||
-        state.isBotMoving
-      ) {
+      if (state.squares[index] || state.gameState || state.draw) {
         return state; // Prevent update if square is occupied or game is over
       }
 
@@ -66,7 +59,6 @@ export const createGameSlice: StateCreator<GameSlice> = (set) => ({
       return {
         squares: newSquares,
         isXNext: false, // Switch to the bot's turn
-        isBotMoving: true, // Now it's the bot's turn
         gameState: winner ?? (isDraw ? "draw" : null), // Set game state to winner or draw
         winner,
         draw: isDraw,
@@ -99,7 +91,6 @@ export const createGameSlice: StateCreator<GameSlice> = (set) => ({
           gameState: winner ?? (isDraw ? "draw" : null),
           draw: isDraw,
           winner,
-          isBotMoving: false,
         };
       }
       return state;
