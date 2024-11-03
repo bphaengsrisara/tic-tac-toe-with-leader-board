@@ -14,10 +14,10 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 # Build the Next.js application
-RUN yarn db:setup && yarn build
+RUN yarn build
 
 # Expose the Next.js application port
 EXPOSE 3000
 
 # Start the Next.js application
-CMD ["yarn", "start"]
+CMD ["yarn", "docker:start"]
